@@ -1,0 +1,83 @@
+// File: cmd/api/main.go
+
+package main
+
+import (
+	"context"
+	"database/sql"
+	"flag"
+	"log/slog"
+	"math/rand"
+	"os"
+	"time"
+
+	_ "github.com/lib/pq"
+	"github.com/spector-asael/week-1/cmd/api/handler"
+	"github.com/spector-asael/week-1/internal/data"
+)
+
+func openDB(settings handler.ServerConfig) (*sql.DB, error) {
+	// open a connection pool
+	db, err := sql.Open("postgres", settings.DB.DSN)
+	if err != nil {
+		return nil, err
+	}
+
+	// set a context to ensure DB operations don't take too long
+	ctx, cancel := context.WithTimeout(context.Background(),
+		5*time.Second)
+	defer cancel()
+	// let's test if the connection pool was created
+	// we trying pinging it with a 5-second timeout
+	err = db.PingContext(ctx)
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	// return the connection pool (sql.DB)
+	return db, nil
+
+}
+
+func main() {
+	rand.Seed(time.Now().UnixNano())
+	var settings handler.ServerConfig
+
+	flag.IntVar(&settings.Port, "port", 4000, "Server port")
+	flag.StringVar(&settings.Environment, "env", "development", "Environment(development|staging|production)")
+	flag.StringVar(&settings.DB.DSN, "db-dsn", "", "PostgreSQL DSN")
+
+	flag.Parse()
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+	// the call to openDB() sets up our connection pool
+	db, err := openDB(settings)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+	// release the database resources before exiting
+	// defer db.Close()
+	defer db.Close()
+
+	logger.Info("database connection pool established")
+
+	appInstance := &handler.ApplicationDependencies{
+		Config: settings,
+		Logger: logger,
+		Models: data.Models{
+			Consumer: data.ConsumerModel{DB: db},
+			API_Keys: data.API_KeysModel{DB: db},
+			Jobs:     data.JobsModel{DB: db},
+		},
+	}
+
+	err = appInstance.Serve(&settings, appInstance)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
+}

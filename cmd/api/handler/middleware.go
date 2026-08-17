@@ -1,0 +1,31 @@
+// filename: cmd/api/middleware.go
+
+package handler
+
+import (
+	"fmt"
+	"net/http"
+)
+
+func (a *ApplicationDependencies) recoverPanic(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// defer will be called when the stack unwinds
+		defer func() {
+			// recover() checks for panics
+			err := recover()
+			if err != nil {
+				w.Header().Set("Connection", "close")
+				a.serverErrorResponse(w, r, fmt.Errorf("%s", err))
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a *ApplicationDependencies) loggingMiddleware(next http.Handler) http.Handler {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		a.Logger.Info("request received", "method", r.Method, "uri", r.URL.RequestURI())
+		next.ServeHTTP(w, r)
+	})
+}
