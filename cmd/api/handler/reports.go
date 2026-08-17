@@ -14,7 +14,9 @@ func (app *ApplicationDependencies) createReportHandler(w http.ResponseWriter, r
 		From       time.Time `json:"from"`
 		To         time.Time `json:"to"`
 	}
-
+	//
+	// Curl command to create report
+	//
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
@@ -37,9 +39,6 @@ func (app *ApplicationDependencies) createReportHandler(w http.ResponseWriter, r
 		"artificial_delay", app.Config.ReportDelay,
 	)
 
-	// This controlled delay simulates expensive report-generation work.
-	// It is intentionally not cancellable in Lab 1 so students can observe
-	// that server work may continue after the client stops waiting.
 	time.Sleep(app.Config.ReportDelay)
 
 	report, err := app.Models.Reports.Generate(input.ConsumerID, input.From, input.To)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -54,7 +55,12 @@ func (m ReportModel) Generate(consumerID string, from, to time.Time) (*ConsumerA
 		To:          to,
 		GeneratedAt: time.Now(),
 	}
-
+	fmt.Println("debugging")
+	fmt.Printf("ConsumerID: %s, From: %s, To: %s\n",
+		consumerID,
+		from.Format(time.RFC3339),
+		to.Format(time.RFC3339),
+	)
 	err := m.DB.QueryRowContext(ctx, query, consumerID, from, to).Scan(
 		&report.ConsumerID,
 		&report.ConsumerName,
