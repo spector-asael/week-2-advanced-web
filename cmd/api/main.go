@@ -47,6 +47,7 @@ func main() {
 	flag.IntVar(&settings.Port, "port", 4000, "Server port")
 	flag.StringVar(&settings.Environment, "env", "development", "Environment(development|staging|production)")
 	flag.StringVar(&settings.DB.DSN, "db-dsn", "", "PostgreSQL DSN")
+	flag.DurationVar(&settings.ReportDelay, "report-delay", 0, "Artificial report-generation delay")
 
 	flag.Parse()
 
@@ -71,6 +72,7 @@ func main() {
 			Consumer: data.ConsumerModel{DB: db},
 			API_Keys: data.API_KeysModel{DB: db},
 			Jobs:     data.JobsModel{DB: db},
+			Reports:  data.ReportModel{DB: db},
 		},
 	}
 

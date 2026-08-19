@@ -2,6 +2,7 @@ package handler
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/spector-asael/week-1/internal/data"
 )
@@ -9,6 +10,7 @@ import (
 type ServerConfig struct {
 	Port        int
 	Environment string
+	ReportDelay time.Duration
 	DB          struct {
 		DSN string
 	}

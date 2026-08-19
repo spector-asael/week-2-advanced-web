@@ -24,6 +24,8 @@ func (a *ApplicationDependencies) RegisterRoutes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/api/api-keys/{id}", a.ShowAPIKeyHandler)
 	router.HandlerFunc(http.MethodPost, "/api/api-keys", a.CreateAPIKeyHandler)
 
+	router.HandlerFunc(http.MethodPost, "/api/reports", a.createReportHandler)
+
 	recoverPanicMiddleware := a.recoverPanic(router)
 	loggingMiddleware := a.loggingMiddleware(recoverPanicMiddleware)
 
