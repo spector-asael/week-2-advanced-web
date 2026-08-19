@@ -55,7 +55,7 @@ func (m ReportModel) Generate(consumerID string, from, to time.Time) (*ConsumerA
 		To:          to,
 		GeneratedAt: time.Now(),
 	}
-	fmt.Println("debugging")
+
 	fmt.Printf("ConsumerID: %s, From: %s, To: %s\n",
 		consumerID,
 		from.Format(time.RFC3339),

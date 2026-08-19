@@ -7,7 +7,7 @@ include .envrc
 .PHONY: run 
 run: 
 	@echo "Starting the application..."
-	@go run ./cmd/api -port=${PORT} -db-dsn=${DB_DSN} -env=development -report-delay="5s"
+	@go run ./cmd/api -port=${PORT} -db-dsn=${DB_DSN} -env=development -report-delay="12s"
 
 ## db/psql: Connect to the banking database using psql
 .PHONY: db
